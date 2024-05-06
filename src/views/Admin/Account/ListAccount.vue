@@ -21,7 +21,7 @@
               <td class="text-center">{{ account.id }}</td>
               <td class="text-center">{{ account.name }}</td>
               <td class="text-center">{{ account.email }}</td>
-              <td class="text-center">{{ account.department }}</td>
+              <td class="text-center">{{ account.department_name }}</td>
               <td class="text-center">{{ formatDate(account.created_at) }}</td>
             </tr>
           </tbody>
@@ -33,7 +33,8 @@
 
 <script>
 import axios from 'axios';
-
+import { GET_USER_TOKEN } from '@/store/storeConstants.js';
+import { mapGetters } from 'vuex';
 export default {
   data() {
     return {
@@ -43,11 +44,19 @@ export default {
   mounted() {
     this.fetchUserAccounts();
   },
+  computed: {
+    ...mapGetters('auth', {
+      token: GET_USER_TOKEN
+    })
+  },
   methods: {
     async fetchUserAccounts() {
       try {
-        const response = await axios.get('useraccounts'); // Adjust the URL based on your API route
-        this.accounts = response.data;
+        const response = await axios.get('useraccounts', { headers: {
+            Authorization: 'Bearer ' + this.token // Include a space after 'Bearer'
+          }}); // Adjust the URL based on your API route
+        this.accounts = response.data.useraccounts;
+        console.log(response)
       } catch (error) {
         console.error('Error fetching user accounts:', error);
       }

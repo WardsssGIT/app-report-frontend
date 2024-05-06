@@ -14,11 +14,11 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="department">Department:</label>
-                      <select class="form-control" id="department" v-model="department" required>
+                      <select class="form-control" id="department" v-model="department_id" required>
                         <option value="">Select Department</option>
-                        <option value="Department 1">Department 1</option>
-                        <option value="Department 2">Department 2</option>
-                        <option value="Department 3">Department 3</option>
+                        <option v-for="(department, index) in departments" :key="index" :value=department.id>
+                          {{ department.department_name }}
+                        </option>
                         <!-- Add more options for other departments as needed -->
                       </select>
                     </div>
@@ -60,30 +60,45 @@
 
 <script>
 import axios from 'axios';
-
+import { GET_USER_TOKEN } from '@/store/storeConstants.js';
+import { mapGetters } from 'vuex';
 export default {
   data() {
     return {
-      department: '',
+      department_id: '',
       name: '',
       email: '',
       password: '',
       emailError: '',
-      registrationSuccess: false
+      registrationSuccess: false,
+      departments: []
     };
+  },
+  computed: {
+    ...mapGetters('auth', {
+      token: GET_USER_TOKEN
+    })
+  },
+  mounted() {
+    this.fetchDepartments()
   },
   methods: {
     submitForm() {
-      if (this.department && this.name && this.email && this.password) {
+      if (this.department_id && this.name && this.email && this.password) {
         const formData = {
-          department: this.department,
+          department_id: this.department_id,
           name: this.name,
           email: this.email,
           password: this.password
         };
-
-        axios.post('register', formData)
+        console.log(formData)
+        axios.post('register', formData, {
+          headers: {
+            Authorization: 'Bearer ' + this.token // Include a space after 'Bearer'
+          }
+        })
           .then(response => {
+            console.log(response);
             this.registrationSuccess = true;
             this.emailError = '';
           })
@@ -103,6 +118,22 @@ export default {
       } else {
         console.error('All fields are required');
       }
+    },
+    async fetchDepartments() {
+      await axios.get('indexdepartment', {
+        headers: {
+          Authorization: 'Bearer ' + this.token // Include a space after 'Bearer'
+        }
+      })
+        .then(response => {
+          this.departments = response.data.departments;
+          console.log(response)
+          //console.log(this.name)
+        })
+        .catch(error => {
+          console.error('Error fetching departments:', error);
+          // Handle error if needed
+        });
     }
   }
 };
@@ -175,6 +206,7 @@ export default {
 }
 
 .back-btn {
-  width: 80px; /* Adjust the width as desired */
+  width: 80px;
+  /* Adjust the width as desired */
 }
 </style>

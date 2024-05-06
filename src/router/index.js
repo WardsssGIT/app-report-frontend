@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { clientRoute } from "./clientRoute";
-import { studentRoute } from "./student-route.js";
+import { staffRoute } from "./staffRoute.js";
 import { adminRoute } from "./adminRoute.js";
 import store from "../store/index";
 import {
@@ -60,6 +60,13 @@ const routes = [
     component: () => import("@/components/layouts/MainLayout.vue"),
     children: adminRoute("admin-layout"),
   },
+
+  {
+    path: "/staff",
+    name: "staff-layout",
+    component: () => import("@/components/layouts/MainLayout.vue"),
+    children: staffRoute("staff-layout"),
+  },
 ];
 
 const router = createRouter({
@@ -77,31 +84,31 @@ function studentUserMiddleware(to, from, next) {
   }
 }
 
-function applicantUserMiddleware(to, from, next) {
+function staffUserMiddleware(to, from, next) {
   // Admin user middleware logic
   // console.log('Applicant user middleware')
-  if (to.meta.user !== "applicant") {
-    next("/applicant/dashboard");
+  if (to.meta.user !== "staff") {
+    next("/staff/dashboard");
   } else {
     next();
   }
 }
-// router.beforeEach((to, from, next) => {
-//   const isAuth = store.getters[`auth/${IS_USER_AUTHENTICATE_GETTER}`]
-//   const isAuthType = store.getters[`auth/${GET_USER_TYPE}`]
-//   document.title = `${to.meta.name} - Baliwag Maritime Academy, Inc.`
-//   if (isAuth) {
-//     if (isAuthType === 'admin') {
-//       studentUserMiddleware(to, from, next)
-//     } else if (isAuthType === 'applicant') {
-//       applicantUserMiddleware(to, from, next)
-//     }
-//   } else {
-//     if (to.meta.user !== 'guest') {
-//       next('/')
-//     } else {
-//       next()
-//     }
-//   }
-// })
+router.beforeEach((to, from, next) => {
+  const isAuth = store.getters[`auth/${IS_USER_AUTHENTICATE_GETTER}`]
+  const isAuthType = store.getters[`auth/${GET_USER_TYPE}`]
+  document.title = `${to.meta.name} - Baliwag Maritime Academy, Inc.`
+  if (isAuth) {
+    if (isAuthType === 'admin') {
+      studentUserMiddleware(to, from, next)
+    } else if (isAuthType === 'staff') {
+      staffUserMiddleware(to, from, next)
+    }
+  } else {
+    if (to.meta.user !== 'guest') {
+      next('/')
+    } else {
+      next()
+    }
+  }
+})
 export default router;

@@ -14,14 +14,15 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="Date_of_report">Date of Report:</label>
-                      <input type="date" class="form-control" id="Date_of_report" v-model="report.Date_of_report" required>
+                      <input type="date" class="form-control" id="Date_of_report" v-model="report.date_of_report"
+                        required>
                       <small class="form-text text-muted">Ser. No.: N2024ACA002</small>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="Report_name">Report Name:</label>
-                      <input type="text" class="form-control" id="Report_name" v-model="report.Report_name" required>
+                      <input type="text" class="form-control" id="Report_name" v-model="report.report_name" required>
                     </div>
                   </div>
                 </div>
@@ -29,22 +30,29 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="Report_type">Report Type:</label>
-                      <input type="text" class="form-control" id="Report_type" v-model="report.Report_type" required>
+                      <input type="text" class="form-control" id="Report_type" v-model="report.report_type" required>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label for="Department_involved">Department Involved:</label>
-                      <select class="form-control" id="Department_involved" v-model="report.Department_involved" required>
-                        <option value="">Select a department</option>
-                        <option v-for="department in departments" :key="department.id" :value="department.name">{{ department.name }}</option>
+                      <label for="department">Department:</label>
+                      <select class="form-control" id="department" v-model="report.department_id" placeholder="Select Department" required>
+
+                        required>
+                        <option value="">Select Department</option>
+
+                        <option v-for="(department, index) in departments" :key="index" :value=department.id>
+                          {{ department.department_name }}
+                        </option>
+                        <!-- Add more options for other departments as needed -->
                       </select>
                     </div>
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="Description">Description:</label>
-                  <textarea class="form-control" id="Description" rows="5" v-model="report.Description" required></textarea>
+                  <textarea class="form-control" id="Description" rows="5" v-model="report.description"
+                    required></textarea>
                 </div>
                 <div v-if="submitError" class="alert alert-danger">{{ submitError }}</div>
                 <div class="form-group">
@@ -70,50 +78,36 @@ export default {
   data() {
     return {
       report: {
-        Date_of_report: '',
-        Report_name: '',
-        Report_type: '',
-        Description: '',
-        Department_involved: '',
+        date_of_report: '',
+        report_type: '',
+        report_name: '',
+        department_id: '',
+        description: ''
+
       },
       departments: [],
       submitError: ''
     };
-  },
-  mounted() {
-    this.fetchDepartments();
-    console.log(this.token);
   },
   computed: {
     ...mapGetters('auth', {
       token: GET_USER_TOKEN
     })
   },
+  mounted() {
+    this.fetchDepartments();
+    console.log(this.token);
+  },
   methods: {
-    fetchDepartments() {
-      axios.get('departments')
-        .then(response => {
-          this.departments = response.data;
-        })
-        .catch(error => {
-          console.error('Error fetching departments:', error);
-        });
-    },
     submitForm() {
-      for (let key in this.report) {
-        if (!this.report[key]) {
-          this.submitError = 'Please fill out all fields.';
-          return;
+      axios.post('reports-upload', this.report, {
+        headers: {
+          Authorization: 'Bearer ' + this.token 
         }
-      }
-      const headers = {
-        Authorization: `Bearer ${this.token}`
-      };
-      axios.post('reports-upload', this.report, { headers })
+      })
         .then(() => {
           this.resetForm();
           alert('Report submitted successfully!');
-          this.fetchdata(); // Ensure this function exists or replace it with an appropriate one
         })
         .catch(error => {
           if (error.response && error.response.data && error.response.data.message) {
@@ -121,7 +115,22 @@ export default {
             this.submitError = error.response.data.message;
           } else {
             this.submitError = 'An error occurred.';
+            console.log(this.report)  
           }
+        });
+    },
+    async fetchDepartments() {
+      await axios.get('indexdepartment', {
+        headers: {
+          Authorization: 'Bearer ' + this.token 
+        }
+      })
+        .then(response => {
+          this.departments = response.data.departments;
+          this.report.department = ''; 
+        })
+        .catch(error => {
+          console.error('Error fetching departments:', error);
         });
     },
     resetForm() {
@@ -131,7 +140,11 @@ export default {
       this.submitError = '';
     },
     saveAsTemporary() {
-      axios.post('save-temporary-report', this.report)
+      axios.post('temporary-data', this.report, {
+        headers: {
+          Authorization: 'Bearer ' + this.token 
+        }
+      })
         .then(() => {
           alert('Report saved as temporary.');
         })
@@ -178,6 +191,7 @@ export default {
 }
 
 .back-btn {
-  width: 80px; /* Adjust the width as desired */
+  width: 80px;
+  /* Adjust the width as desired */
 }
 </style>
