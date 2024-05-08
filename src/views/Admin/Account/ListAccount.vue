@@ -2,7 +2,8 @@
   <div class="card">
     <div class="card-header">
       <label for="" class="text-primary h4 float-start">Account List</label>
-      <router-link :to="{name:'admin-layout.account-create'}" class="btn btn-primary btn-sm float-end">Create Account</router-link>
+      <router-link :to="{ name: 'admin-layout.account-create' }" class="btn btn-primary btn-sm float-end">Create
+        Account</router-link>
     </div>
     <div class="card-body">
       <div class="table-responsive">
@@ -21,7 +22,8 @@
               <td class="text-center">{{ account.id }}</td>
               <td class="text-center">{{ account.name }}</td>
               <td class="text-center">{{ account.email }}</td>
-              <td class="text-center">{{ account.department_name }}</td>
+              <td class="text-center">{{ account.user_role.department != null ? account.user_role.department.department_name : '' }}
+              </td>
               <td class="text-center">{{ formatDate(account.created_at) }}</td>
             </tr>
           </tbody>
@@ -52,9 +54,11 @@ export default {
   methods: {
     async fetchUserAccounts() {
       try {
-        const response = await axios.get('useraccounts', { headers: {
+        const response = await axios.get('useraccounts', {
+          headers: {
             Authorization: 'Bearer ' + this.token // Include a space after 'Bearer'
-          }}); // Adjust the URL based on your API route
+          }
+        }); // Adjust the URL based on your API route
         this.accounts = response.data.useraccounts;
         console.log(response)
       } catch (error) {

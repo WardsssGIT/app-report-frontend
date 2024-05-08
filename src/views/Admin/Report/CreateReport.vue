@@ -135,7 +135,7 @@ export default {
     },
     resetForm() {
       for (let key in this.report) {
-        this.report[key] = '';
+        this.report[key] = 'z';
       }
       this.submitError = '';
     },
