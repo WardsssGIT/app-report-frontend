@@ -97,13 +97,13 @@ export default {
   },
   methods: {
     submitForm() {
-      if (this.department_id && this.name && this.email && this.password && this.userRole) { // Include userRole in validation
+      if (this.department_id && this.name && this.email && this.password && this.userrole) { // Include userRole in validation
         const formData = {
           department_id: this.department_id,
           name: this.name,
           email: this.email,
           password: this.password,
-          role: this.userRole // Pass userRole to formData
+          role: this.userrole // Pass userRole to formData
         };
         console.log(formData)
         axios.post('register', formData, {
