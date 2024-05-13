@@ -2,8 +2,7 @@
   <div class="card">
     <div class="card-header">
       <label for="" class="text-primary h4 float-start">Account List</label>
-      <router-link :to="{ name: 'admin-layout.account-create' }" class="btn btn-primary btn-sm float-end">Create
-        Account</router-link>
+      <router-link :to="{ name: 'admin-layout.account-create' }" class="btn btn-primary btn-sm float-end">Create Account</router-link>
     </div>
     <div class="card-body">
       <div class="table-responsive">
@@ -13,6 +12,7 @@
               <th class="text-center">ID Number</th>
               <th class="text-center">Name</th>
               <th class="text-center">Email</th>
+              <th class="text-center">Role</th>
               <th class="text-center">Department</th>
               <th class="text-center">Date of Account Creation</th>
             </tr>
@@ -22,8 +22,8 @@
               <td class="text-center">{{ account.id }}</td>
               <td class="text-center">{{ account.name }}</td>
               <td class="text-center">{{ account.email }}</td>
-              <td class="text-center">{{ account.user_role.department != null ? account.user_role.department.department_name : '' }}
-              </td>
+              <td class="text-center">{{ account.user_role.userrole }}</td> <!-- Display the role here -->
+              <td class="text-center">{{ account.user_role.department != null ? account.user_role.department.department_name : '' }}</td>
               <td class="text-center">{{ formatDate(account.created_at) }}</td>
             </tr>
           </tbody>
@@ -37,6 +37,7 @@
 import axios from 'axios';
 import { GET_USER_TOKEN } from '@/store/storeConstants.js';
 import { mapGetters } from 'vuex';
+
 export default {
   data() {
     return {

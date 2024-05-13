@@ -118,7 +118,7 @@ export default {
       }
     },
     viewReport(reportId) {
-      axios.get(`/reports/{reportId}/pdf/${reportId}`, {
+      axios.get(`/reports/pdf/${reportId}`, {
         headers: {
           Authorization: 'Bearer ' + this.token
         },

@@ -1,5 +1,8 @@
 <template>
   <div class="make-report-container">
+    <div v-if="loading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
     <div class="container">
       <div class="row">
         <router-link to="/admin/account-list" class="btn btn-secondary btn-sm float-end back-btn">Back</router-link>
@@ -13,23 +16,25 @@
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label for="role">Role:</label>
-                      <select class="form-control" id="role" v-model="userrole" required>
-                        <option value="">Select Role</option>
-                        <option value="staff">Staff</option>
-                        <option value="admin">Admin</option>
+                      <label for="department">Department:</label>
+                      <select class="form-control" id="department" v-model="department_id" required>
+                        <option value="">Select Department</option>
+                        <option v-for="(department, index) in departments" :key="index" :value="department.id">
+                          {{ department.department_name }}
+                        </option>
                       </select>
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
-                      <label for="department">Department:</label>
-                      <select class="form-control" id="department" v-model="department_id" required>
-                        <option value="">Select Department</option>
-                        <option v-for="(department, index) in departments" :key="index" :value=department.id>
-                          {{ department.department_name }}
-                        </option>
-                        <!-- Add more options for other departments as needed -->
+                      <label for="role">Role:</label>
+                      <select class="form-control" id="role" v-model="role_id" required>
+                        <option value="">Select Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="staff">Staff</option>
+                        <!-- <option v-for="(role, index) in roles" :key="index" :value="role.id">
+                          {{ role.role_name }}
+                        </option> -->
                       </select>
                     </div>
                   </div>
@@ -58,10 +63,10 @@
                   </div>
                 </div>
                 <button type="submit" class="btn btn-success">Create Account</button>
-                <div v-if="registrationSuccess" class="alert alert-success mt-3 text-center">
-                  User registered successfully!
-                </div>
               </form>
+              <div v-if="registrationSuccess" class="alert alert-success mt-3 text-center">
+                User registered successfully!
+              </div>
             </div>
           </div>
         </div>
@@ -78,13 +83,15 @@ export default {
   data() {
     return {
       department_id: '',
+      role_id: '',
       name: '',
       email: '',
       password: '',
       emailError: '',
       registrationSuccess: false,
+      loading: false,
       departments: [],
-      userrole: '' // Changed from role to userRole
+      roles: []
     };
   },
   computed: {
@@ -93,22 +100,23 @@ export default {
     })
   },
   mounted() {
-    this.fetchDepartments()
+    this.fetchDepartments();
+    this.fetchRoles();
   },
   methods: {
     submitForm() {
-      if (this.department_id && this.name && this.email && this.password && this.userrole) { // Include userRole in validation
+      if (this.department_id && this.role_id && this.name && this.email && this.password) {
         const formData = {
           department_id: this.department_id,
+          userrole: this.role_id,
           name: this.name,
           email: this.email,
-          password: this.password,
-          role: this.userrole // Pass userRole to formData
+          password: this.password
         };
-        console.log(formData)
+        this.loading = true;
         axios.post('register', formData, {
           headers: {
-            Authorization: 'Bearer ' + this.token // Include a space after 'Bearer'
+            Authorization: 'Bearer ' + this.token
           }
         })
           .then(response => {
@@ -128,26 +136,41 @@ export default {
               this.emailError = 'An error occurred. Please try again.';
             }
             this.registrationSuccess = false;
+          })
+          .finally(() => {
+            this.loading = false;
           });
       } else {
         console.error('All fields are required');
       }
     },
     async fetchDepartments() {
-      await axios.get('indexdepartment', {
-        headers: {
-          Authorization: 'Bearer ' + this.token // Include a space after 'Bearer'
-        }
-      })
-        .then(response => {
-          this.departments = response.data.departments;
-          console.log(response)
-          //console.log(this.name)
-        })
-        .catch(error => {
-          console.error('Error fetching departments:', error);
-          // Handle error if needed
+      try {
+        const response = await axios.get('indexdepartment', {
+          headers: {
+            Authorization: 'Bearer ' + this.token
+          }
         });
+        this.departments = response.data.departments;
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching departments:', error);
+        // Handle error if needed
+      }
+    },
+    async fetchRoles() {
+      try {
+        const response = await axios.get('indexroles', {
+          headers: {
+            Authorization: 'Bearer ' + this.token
+          }
+        });
+        this.roles = response.data.roles;
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching roles:', error);
+        // Handle error if needed
+      }
     }
   }
 };
@@ -221,6 +244,33 @@ export default {
 
 .back-btn {
   width: 80px;
-  /* Adjust the width as desired */
+}
+
+/* Loading animation styles */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent white */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Ensure it's above other elements */
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.3); /* Light gray border */
+  border-top: 4px solid #007bff; /* Blue border */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite; /* Spin animation */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
