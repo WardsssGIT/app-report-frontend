@@ -24,10 +24,14 @@
               <td>{{ report.report_type }}</td>
               <td>{{ report.department ? report.department.department_name : '' }}</td>
               <td>
-                <button @click="approvedReport(report.id, index)" class="btn btn-success action-button">Approve</button>
-                <button @click="disapprovedReport(report.id, index)" class="btn btn-success action-button btn-dissaproved">Disapproved</button>
+                <button @click="approvedReport(report.id, index)"
+                  class="btn btn-success btn-sm action-button">Approve</button>
+                <button @click="disapprovedReport(report.id, index)"
+                  class="btn btn-success btn-sm action-button btn-dissaproved">Disapproved</button>
+                <button @click="viewReport(report.id, index)"
+                  class="btn btn-secondary btn-sm action-button">View</button>
                 <button @click="archiveReport(report.id, index)"
-                  class="btn btn-secondary action-button">Archive</button>
+                  class="btn btn-secondary btn-sm action-button">Archive</button>
               </td>
             </tr>
           </tbody>
@@ -47,7 +51,8 @@ export default {
   data() {
     return {
       reports: [],
-      departments: [] // Add departments array
+      departments: [], // Add departments array
+      pdfUrl: ''
     };
   },
   computed: {
@@ -112,6 +117,29 @@ export default {
           });
       }
     },
+    viewReport(reportId) {
+      axios.get(`/reports/{reportId}/pdf/${reportId}`, {
+        headers: {
+          Authorization: 'Bearer ' + this.token
+        },
+        responseType: 'blob' // Set response type to 'blob' to handle binary data
+      })
+        .then(response => {
+          // Create a Blob object from the response data
+          const blob = new Blob([response.data], { type: 'application/pdf' });
+
+          // Create a URL for the Blob object
+          const url = URL.createObjectURL(blob);
+
+          // Open the PDF in a new tab
+          window.open(url, '_blank');
+        })
+        .catch(error => {
+          console.error('Error fetching PDF:', error);
+          // Handle error
+        });
+    },
+
 
     async fetchReports() { // Rename method to fetchReports
       try {
@@ -141,15 +169,51 @@ export default {
   }
 };
 </script>
+
 <style scoped>
+.pdfviewer {
+  display: none;
+}
 
 .btn {
   margin-right: 10px;
 }
 
-.btn-dissaproved{
+.btn-dissaproved {
   background-color: rgb(228, 84, 84);
   border-style: none;
   color: white;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 100%;  
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f2f2f2;
+  text-align: center;
+  /* Center align text in table headers */
+}
+
+.btn {
+  margin-right: 10px;
+}
+
+.btn-dissaproved {
+  background-color: rgb(228, 84, 84);
+  border-style: none;
+  color: white;
+}
+
+.table td {
+  text-align: center;
 }
 </style>

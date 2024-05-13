@@ -16,7 +16,6 @@
                       <label for="Date_of_report">Date of Report:</label>
                       <input type="date" class="form-control" id="Date_of_report" v-model="report.date_of_report"
                         required>
-                      <small class="form-text text-muted">Ser. No.: N2024ACA002</small>
                     </div>
                   </div>
                   <div class="col-md-6">
@@ -37,14 +36,10 @@
                     <div class="form-group">
                       <label for="department">Department:</label>
                       <select class="form-control" id="department" v-model="report.department_id" placeholder="Select Department" required>
-
-                        required>
                         <option value="">Select Department</option>
-
-                        <option v-for="(department, index) in departments" :key="index" :value=department.id>
+                        <option v-for="(department, index) in departments" :key="index" :value="department.id">
                           {{ department.department_name }}
                         </option>
-                        <!-- Add more options for other departments as needed -->
                       </select>
                     </div>
                   </div>
@@ -54,10 +49,20 @@
                   <textarea class="form-control" id="Description" rows="5" v-model="report.description"
                     required></textarea>
                 </div>
+                <!-- Submit error message -->
                 <div v-if="submitError" class="alert alert-danger">{{ submitError }}</div>
+                <!-- Success message -->
+                <div v-if="submitSuccess" class="alert alert-success">{{ submitSuccess }}</div>
+                <!-- Loading animation -->
+                <div v-if="loading" class="loading-overlay">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
                 <div class="form-group">
-                  <button type="submit" class="btn btn-success">Submit</button>
-                  <button type="button" class="btn btn-primary" @click="saveAsTemporary">Save as Temporary</button>
+                  <!-- Submit button with loading state -->
+                  <button :disabled="loading" type="submit" class="btn btn-success">{{ loading ? 'Submitting...' : 'Submit' }}</button>
+                  <button :disabled="loading" type="button" class="btn btn-primary" @click="saveAsTemporary">{{ loading ? 'Saving...' : 'Save as Temporary' }}</button>
                 </div>
               </form>
             </div>
@@ -83,10 +88,11 @@ export default {
         report_name: '',
         department_id: '',
         description: ''
-
       },
       departments: [],
-      submitError: ''
+      submitError: '',
+      submitSuccess: '', // Added
+      loading: false
     };
   },
   computed: {
@@ -100,14 +106,15 @@ export default {
   },
   methods: {
     submitForm() {
+      this.loading = true; // Show loading animation
       axios.post('reports-upload', this.report, {
         headers: {
           Authorization: 'Bearer ' + this.token 
         }
       })
         .then(() => {
+          this.submitSuccess = 'Report submitted successfully'; // Added
           this.resetForm();
-          alert('Report submitted successfully!');
         })
         .catch(error => {
           if (error.response && error.response.data && error.response.data.message) {
@@ -115,42 +122,49 @@ export default {
             this.submitError = error.response.data.message;
           } else {
             this.submitError = 'An error occurred.';
-            console.log(this.report)  
+            console.log(this.report);
           }
+        })
+        .finally(() => {
+          this.loading = false; // Hide loading animation
         });
     },
     async fetchDepartments() {
-      await axios.get('indexdepartment', {
-        headers: {
-          Authorization: 'Bearer ' + this.token 
-        }
-      })
-        .then(response => {
-          this.departments = response.data.departments;
-          this.report.department = ''; 
-        })
-        .catch(error => {
-          console.error('Error fetching departments:', error);
+      this.loading = true; // Show loading animation
+      try {
+        const response = await axios.get('indexdepartment', {
+          headers: {
+            Authorization: 'Bearer ' + this.token 
+          }
         });
+        this.departments = response.data.departments;
+        this.report.department = ''; 
+      } catch (error) {
+        console.error('Error fetching departments:', error);
+      } finally {
+        this.loading = false; // Hide loading animation
+      }
     },
     resetForm() {
       for (let key in this.report) {
-        this.report[key] = 'z';
+        this.report[key] = '';
       }
       this.submitError = '';
     },
     saveAsTemporary() {
+      this.loading = true; // Show loading animation
       axios.post('temporary-data', this.report, {
         headers: {
           Authorization: 'Bearer ' + this.token 
         }
       })
         .then(() => {
-          alert('Report saved as temporary.');
         })
         .catch(error => {
           console.error('Error saving report as temporary:', error);
-          alert('An error occurred while saving the report as temporary.');
+        })
+        .finally(() => {
+          this.loading = false; // Hide loading animation
         });
     }
   }
@@ -193,5 +207,24 @@ export default {
 .back-btn {
   width: 80px;
   /* Adjust the width as desired */
+}
+
+/* Loading animation overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
 }
 </style>

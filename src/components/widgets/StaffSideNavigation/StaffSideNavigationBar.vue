@@ -15,7 +15,7 @@
         <ion-content class="content"> <!-- Add the content class here -->
             <div class="sidebar-body pt-0 data-scrollbar">
                 <div class="sidebar-list">
-                    <StaffSideNavigationBarItem></StaffSideNavigationBarItem>
+                    <StaffSideNavigationBar></StaffSideNavigationBar>
                 </div>
                 <div class="p-2"></div>
             </div>
@@ -25,7 +25,7 @@
 
 <script>
 import { IonHeader, IonToolbar, IonButton, IonButtons, IonMenu, IonMenuButton, IonIcon, IonTitle, IonBreadcrumb, IonLabel, IonContent } from '@ionic/vue';
-import StaffSideNavigationBarItem from './StaffSideNavigationBarItem.vue';
+import StaffSideNavigationBar from './StaffSideNavigationBarItem.vue';
 import { grid } from 'ionicons/icons';
 import Scrollbar from 'smooth-scrollbar'
 export default {
