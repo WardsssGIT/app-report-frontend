@@ -14,7 +14,7 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="role">Role:</label>
-                      <select class="form-control" id="role" v-model="userRole" required>
+                      <select class="form-control" id="role" v-model="userrole" required>
                         <option value="">Select Role</option>
                         <option value="staff">Staff</option>
                         <option value="admin">Admin</option>
@@ -84,7 +84,7 @@ export default {
       emailError: '',
       registrationSuccess: false,
       departments: [],
-      userRole: '' // Changed from role to userRole
+      userrole: '' // Changed from role to userRole
     };
   },
   computed: {
