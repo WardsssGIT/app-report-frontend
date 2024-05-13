@@ -5,6 +5,11 @@
         <h2 class="card-title">Department Manager</h2>
       </div>
       <div class="card-body">
+        <!-- Loading overlay -->
+        <div v-if="loading" class="loading-overlay">
+          <div class="loading-spinner"></div>
+        </div>
+        <!-- Main content -->
         <div class="input-section d-flex justify-content-center">
           <input type="text" v-model="departmentName" placeholder="Enter department name" class="form-control mr-2">
           <button @click="addDepartment" class="btn btn-success">Add Department</button>
@@ -14,6 +19,9 @@
           <button type="button" class="close" @click="showAlert = false" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
+        </div>
+        <div v-if="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
         </div>
         <table class="table">
           <thead>
@@ -47,7 +55,8 @@ export default {
       departmentName: '',
       departments: [],
       showAlert: false,
-      errorMessage: ''
+      errorMessage: '',
+      loading: false
     };
   },
 
@@ -64,21 +73,24 @@ export default {
   methods: {
     addDepartment() {
       if (this.departmentName !== '') {
+        this.loading = true;
         axios.post('adddepartment', { department_name: this.departmentName }, {
           headers: {
-            Authorization: 'Bearer ' + this.token // Include a space after 'Bearer'
+            Authorization: 'Bearer ' + this.token
           }
         })
           .then(response => {
             console.log(response);
             this.departmentName = '';
-            console.log(this.departmentName);
-            this.fetchDepartments(); 
-            this.showAlert = true; 
+            this.fetchDepartments();
+            this.showAlert = true;
           })
           .catch(error => {
             this.errorMessage = 'Error adding department: ' + error.message;
             console.error(this.errorMessage);
+          })
+          .finally(() => {
+            this.loading = false;
           });
       }
     },
@@ -88,11 +100,11 @@ export default {
         const departmentId = this.departments[index].id;
         axios.put(`/reports/archive/${departmentId}`, null, {
           headers: {
-            Authorization: 'Bearer ' + this.token 
+            Authorization: 'Bearer ' + this.token
           }
         })
           .then(response => {
-            this.fetchDepartments(); 
+            this.fetchDepartments();
           })
           .catch(error => {
             this.errorMessage = 'Error archiving department: ' + error.message;
@@ -105,7 +117,7 @@ export default {
       try {
         const response = await axios.get('indexdepartment', {
           headers: {
-            Authorization: 'Bearer ' + this.token 
+            Authorization: 'Bearer ' + this.token
           }
         });
         this.departments = response.data.departments;
@@ -135,6 +147,7 @@ export default {
   border-bottom: 1px solid #dee2e6;
   padding: 1rem;
   margin-top: 25px;
+  text-align: center; /* Center align the text */
 }
 
 .card-title {
@@ -201,18 +214,21 @@ export default {
   border-collapse: collapse;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd; /* Add border to the table */
 }
 
 th,
 td {
   padding: 10px;
-  text-align: left;
+  text-align: center; /* Center align the content */
   border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd; /* Add border to the right of th and td */
 }
 
 th {
   background-color: #f8f9fa;
   font-weight: 600;
+  border-top: 1px solid #ddd; /* Add border to the top of th */
 }
 
 .action-button {
@@ -227,5 +243,33 @@ th {
   margin-top: 1rem;
   border-radius: 4px;
   font-size: 16px;
+}
+
+/* Loading animation styles */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent white */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Ensure it's above other elements */
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.3); /* Light gray border */
+  border-top: 4px solid #007bff; /* Blue border */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite; /* Spin animation */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

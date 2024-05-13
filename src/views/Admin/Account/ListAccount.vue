@@ -77,4 +77,29 @@ export default {
 .table td {
   text-align: center;
 }
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table th, .table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f2f2f2;
+}
+
+.btn {
+  margin-right: 10px;
+}
+
+.btn-dissaproved {
+  background-color: rgb(228, 84, 84);
+  border-style: none;
+  color: white;
+}
 </style>

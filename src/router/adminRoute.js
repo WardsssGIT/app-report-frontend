@@ -58,6 +58,17 @@ export const adminRoute = (prop) => [
       user: "admin",
     },
     component: () => import("../views/Admin/Manage/AddDepartment.vue"),
+  },
+
+  {
+    path: "/admin/report-viewing",
+    name: prop + ".report-viewing",
+    meta: {
+      auth: true,
+      name: "Report Viewing",
+      user: "admin",
+    },
+    component: () => import("../views/Admin/Report/PDFView.vue"),
   }
   
 ];
