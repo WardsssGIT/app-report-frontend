@@ -13,6 +13,16 @@
                 <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
+                      <label for="role">Role:</label>
+                      <select class="form-control" id="role" v-model="userrole" required>
+                        <option value="">Select Role</option>
+                        <option value="staff">Staff</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
                       <label for="department">Department:</label>
                       <select class="form-control" id="department" v-model="department_id" required>
                         <option value="">Select Department</option>
@@ -23,14 +33,14 @@
                       </select>
                     </div>
                   </div>
+                </div>
+                <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="name">Name:</label>
                       <input type="text" class="form-control" id="name" v-model="name" required>
                     </div>
                   </div>
-                </div>
-                <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="email">Email:</label>
@@ -38,6 +48,8 @@
                       <div v-if="emailError" class="text-danger">{{ emailError }}</div>
                     </div>
                   </div>
+                </div>
+                <div class="row">
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="password">Password:</label>
@@ -71,7 +83,8 @@ export default {
       password: '',
       emailError: '',
       registrationSuccess: false,
-      departments: []
+      departments: [],
+      userrole: '' // Changed from role to userRole
     };
   },
   computed: {
@@ -84,12 +97,13 @@ export default {
   },
   methods: {
     submitForm() {
-      if (this.department_id && this.name && this.email && this.password) {
+      if (this.department_id && this.name && this.email && this.password && this.userRole) { // Include userRole in validation
         const formData = {
           department_id: this.department_id,
           name: this.name,
           email: this.email,
-          password: this.password
+          password: this.password,
+          role: this.userRole // Pass userRole to formData
         };
         console.log(formData)
         axios.post('register', formData, {
