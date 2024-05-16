@@ -95,7 +95,8 @@ export default {
                         email: response.data.user.email, 
                         token: response.data.token,
                         userId: response.data.user.id,
-                        userType: payload.userType
+                        userType: payload.userType,
+                        
                     }
                     localStorage.setItem('userData', JSON.stringify(tokenData))
                     context.commit(SET_USER_TOKEN_MUTATION, tokenData)

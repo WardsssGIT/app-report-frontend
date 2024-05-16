@@ -51,7 +51,7 @@ export default {
   data() {
     return {
       reports: [],
-      departments: [], // Add departments array
+      departments: [], 
       pdfUrl: ''
     };
   },
@@ -61,8 +61,8 @@ export default {
     })
   },
   mounted() {
-    this.fetchReports(); // Rename method to fetch reports
-    this.fetchDepartments(); // Fetch departments
+    this.fetchReports(); 
+    this.fetchDepartments(); 
   },
   methods: {
     approvedReport(reportId, index) {
@@ -73,8 +73,7 @@ export default {
           }
         })
           .then(response => {
-            this.reports.splice(index, 1); // Assuming the backend responds with the updated report data after approval
-            // You can update the report in the UI with the updated data
+            this.reports.splice(index, 1); 
             this.reports[index] = response.data;
           })
           .catch(error => {
@@ -91,8 +90,7 @@ export default {
           }
         })
           .then(response => {
-            this.reports.splice(index, 1); // Assuming the backend responds with the updated report data after approval
-            // You can update the report in the UI with the updated data
+            this.reports.splice(index, 1); 
             this.reports[index] = response.data;
           })
           .catch(error => {
@@ -109,7 +107,7 @@ export default {
           }
         })
           .then(response => {
-            this.reports.splice(index, 1); // Remove the archived report from the list
+            this.reports.splice(index, 1); 
           })
           .catch(error => {
             this.errorMessage = 'Error archiving report: ' + error.message;
@@ -122,26 +120,22 @@ export default {
         headers: {
           Authorization: 'Bearer ' + this.token
         },
-        responseType: 'blob' // Set response type to 'blob' to handle binary data
+        responseType: 'blob' 
       })
         .then(response => {
-          // Create a Blob object from the response data
           const blob = new Blob([response.data], { type: 'application/pdf' });
 
-          // Create a URL for the Blob object
           const url = URL.createObjectURL(blob);
 
-          // Open the PDF in a new tab
           window.open(url, '_blank');
         })
         .catch(error => {
           console.error('Error fetching PDF:', error);
-          // Handle error
         });
     },
 
 
-    async fetchReports() { // Rename method to fetchReports
+    async fetchReports() {
       try {
         const response = await axios.get('show-reports', {
           headers: {
@@ -154,7 +148,7 @@ export default {
         console.error('Error fetching reports:', error);
       }
     },
-    async fetchDepartments() { // Fetch departments
+    async fetchDepartments() { 
       try {
         const response = await axios.get('indexdepartment', {
           headers: {
